@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Crop Disease Detection</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #preview {
+            margin-top: 20px;
+            max-width: 300px;
+            display: none;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+<h2>AI Crop Disease Detection</h2>
+
+<input type="file" id="imageInput" accept="image/*">
+<br><br>
+<button onclick="uploadImage()">Predict</button>
+<br>
+<img id="preview">
+<div id="result"></div>
+
+<script>
+async function uploadImage() {
+    const fileInput = document.getElementById("imageInput");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Please select an image first!");
+        return;
+    }
+
+    // Show preview
+    const preview = document.getElementById("preview");
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+
+    // Prepare form data
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        // Call backend
+        const response = await fetch("http://127.0.0.1:8000/predict", {
+            method: "POST",
+            body: formData
+        });
+
+        // Parse JSON
+        const data = await response.json();
+        console.log("Backend Response:", data);
+
+        const resultDiv = document.getElementById("result");
+
+        // Display single prediction
+        if (data.disease && data.confidence !== undefined) {
+            resultDiv.innerText = 
+                `Disease: ${data.disease} | Confidence: ${(data.confidence*100).toFixed(2)}%`;
+        } else {
+            resultDiv.innerText = "No prediction returned!";
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("result").innerText = "Error connecting to backend!";
+    }
+}
+</script>
+
+</body>
+</html>

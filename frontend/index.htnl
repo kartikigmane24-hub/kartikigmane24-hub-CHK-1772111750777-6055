@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Crop Disease Detection</title>
+</head>
+<body>
+
+<h2>Upload Crop Image</h2>
+
+<input type="file" id="imageInput">
+<button onclick="uploadImage()">Predict</button>
+
+<h3 id="result"></h3>
+
+<script>
+async function uploadImage() {
+    const fileInput = document.getElementById("imageInput");
+    const file = fileInput.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch("http://127.0.0.1:8000/predict", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+    document.getElementById("result").innerText = "Prediction: " + data.prediction;
+}
+</script>
+
+</body>
+</html>
