@@ -285,6 +285,7 @@
                 <button class="analyze-btn" id="analyzeBtn" onclick="analyzeCrop()" disabled>
                     🔬 Analyze Crop
                 </button>
+               
             </div>
         </section>
     </div>
@@ -462,6 +463,41 @@
             resultPage.style.display = 'block';
             displayResults();
         }
+function contactExpert(){
+
+const diagnosis=document.getElementById("diseaseName").textContent;
+
+const phone="919552107229";
+
+const message="Hello Sir, I analyzed my crop using AI Crop Health App. Disease detected: "+diagnosis+". Please guide me.";
+
+const url="https://wa.me/"+phone+"?text="+encodeURIComponent(message);
+
+window.open(url,"_blank");
+
+}
+
+function showGuide(){
+alert("Complete crop treatment guide available.");
+}
+
+function newScan(){
+location.reload();
+}
+
+function shareResult(){
+
+const diagnosis=document.getElementById("diseaseName").textContent;
+
+const text="Crop Diagnosis: "+diagnosis;
+
+navigator.clipboard.writeText(text);
+
+alert("Result copied!");
+
+}
+    
+
     </script>
 </body>
 </html>
