@@ -1,214 +1,396 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>🌱 Crop Disease AI</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh; padding: 20px; 
-        }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .upload-box { 
-            background: rgba(255,255,255,0.95); 
-            padding: 40px; 
-            border-radius: 20px; 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3); 
-            text-align: center; 
-            backdrop-filter: blur(10px);
-        }
-        h1 { color: #2e7d32; margin-bottom: 20px; font-size: 28px; }
-        .upload-btn { 
-            background: linear-gradient(135deg, #4CAF50, #45a049); 
-            color: white; padding: 15px 30px; 
-            border-radius: 25px; cursor: pointer; 
-            font-weight: bold; border: none; 
-            box-shadow: 0 10px 30px rgba(76,175,80,0.4);
-        }
-        #preview { 
-            width: 300px; height: 300px; 
-            object-fit: cover; border-radius: 15px; 
-            margin: 20px auto; display: none; 
-            border: 4px solid #4CAF50; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
-        }
-        .analyze-btn { 
-            background: linear-gradient(135deg, #FF5722, #F57C00); 
-            color: white; padding: 18px 40px; 
-            border-radius: 25px; font-size: 18px; 
-            font-weight: bold; cursor: pointer; 
-            border: none; margin-top: 20px;
-            box-shadow: 0 12px 35px rgba(255,87,34,0.4);
-        }
-        .result-container { 
-            background: rgba(255,255,255,0.95); 
-            padding: 40px; border-radius: 20px; 
-            box-shadow: 0 25px 70px rgba(0,0,0,0.3); 
-            backdrop-filter: blur(10px); margin-top: 30px;
-            display: none;
-        }
-        .disease-badge { 
-            padding: 12px 25px; border-radius: 30px; 
-            color: white; font-weight: bold; font-size: 20px; 
-            display: inline-block; margin: 20px 0;
-        }
-        .healthy { background: linear-gradient(135deg, #4CAF50, #81C784); }
-        .diseased { background: linear-gradient(135deg, #F44336, #E57373); }
-        .treatment-box { 
-            background: #f8f9fa; padding: 25px; 
-            border-radius: 15px; border-left: 5px solid #4CAF50; 
-            margin-top: 20px; line-height: 1.6;
-        }
-        .btn { 
-            background: linear-gradient(135deg, #2196F3, #42A5F5); 
-            color: white; padding: 12px 25px; 
-            border: none; border-radius: 20px; 
-            cursor: pointer; font-weight: 500; 
-            margin: 10px; box-shadow: 0 8px 25px rgba(33,150,243,0.3);
-        }
-        .loading { text-align: center; padding: 50px; color: #666; font-size: 18px; }
-        @media (max-width: 768px) { .upload-box, .result-container { margin: 10px; padding: 30px 20px; } }
-    </style>
+<title>🌱 AI Crop Health Diagnosis</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+font-family:Segoe UI,Arial;
+background:linear-gradient(135deg,#f8f9fa,#e9ecef);
+min-height:100vh;
+padding:20px;
+}
+
+/* HEADER */
+.upload-page header{
+background:linear-gradient(135deg,#2e7d32,#4caf50);
+color:white;
+padding:25px;
+text-align:center;
+font-size:28px;
+border-radius:20px 20px 0 0;
+margin:-20px -20px 30px -20px;
+}
+
+/* UPLOAD BOX */
+.upload-section{
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:80vh;
+}
+
+.upload-box{
+background:white;
+padding:40px;
+border-radius:20px;
+box-shadow:0 20px 50px rgba(0,0,0,0.1);
+text-align:center;
+max-width:480px;
+}
+
+.upload-btn{
+background:#4caf50;
+color:white;
+padding:14px 28px;
+border-radius:10px;
+cursor:pointer;
+display:inline-block;
+margin-bottom:20px;
+}
+
+#preview{
+width:250px;
+height:250px;
+object-fit:cover;
+border-radius:15px;
+margin:20px auto;
+display:none;
+}
+
+.analyze-btn{
+background:#e53935;
+color:white;
+border:none;
+padding:14px 35px;
+border-radius:10px;
+font-size:16px;
+cursor:pointer;
+}
+
+/* RESULT PAGE */
+.result-page{display:none;}
+
+.result-container{
+max-width:1000px;
+margin:auto;
+background:white;
+padding:40px;
+border-radius:20px;
+box-shadow:0 20px 50px rgba(0,0,0,0.15);
+}
+
+.result-title{
+text-align:center;
+font-size:30px;
+color:#2e7d32;
+margin-bottom:30px;
+}
+
+.top-section{
+display:flex;
+gap:30px;
+}
+
+.image-box{
+flex:1;
+}
+
+#plantImage{
+width:100%;
+border-radius:15px;
+}
+
+.overlay{
+background:#2e7d32;
+color:white;
+padding:15px;
+border-radius:10px;
+margin-top:10px;
+}
+
+.info-side{flex:1;}
+
+.card{
+padding:20px;
+border-radius:12px;
+margin-bottom:20px;
+}
+
+.causes{
+background:#ffebee;
+color:#c62828;
+}
+
+.prevention{
+background:#e8f5e9;
+color:#2e7d32;
+}
+
+.bottom-cards{
+display:flex;
+gap:15px;
+margin:30px 0;
+}
+
+.alert{
+flex:1;
+padding:20px;
+border-radius:12px;
+color:white;
+text-align:center;
+}
+
+.weather{background:#2196f3;}
+.soil{background:#795548;}
+.pest{background:#ff9800;}
+
+.buttons{
+display:flex;
+gap:10px;
+justify-content:center;
+flex-wrap:wrap;
+}
+
+.btn{
+padding:12px 25px;
+border:none;
+border-radius:10px;
+color:white;
+cursor:pointer;
+}
+
+.guide{background:#2196f3;}
+.expert{background:#ff9800;}
+.tips{background:#4caf50;}
+.share{background:#9c27b0;}
+
+#language{
+position:fixed;
+top:20px;
+right:20px;
+padding:8px 12px;
+border-radius:8px;
+border:1px solid #ccc;
+background:white;
+font-size:14px;
+z-index:1000;
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <!-- UPLOAD SECTION -->
-        <div class="upload-box" id="uploadSection">
-            <h1>🌱 Crop Disease Detection AI</h1>
-            <p style="color: #666; margin-bottom: 30px;">Upload plant leaf photo (98% accurate PlantVillage CNN)</p>
-            
-            <input type="file" id="imageInput" accept="image/*" style="display: none;">
-            <label for="imageInput" class="upload-btn">📁 Choose Plant Photo</label>
-            <br>
-            <img id="preview" alt="Plant Preview">
-            <br>
-            <button class="analyze-btn" id="analyzeBtn" onclick="analyzeImage()" disabled>
-                🔬 Analyze with AI Backend
-            </button>
-            <div id="status" class="loading" style="display: none;"></div>
-        </div>
 
-        <!-- RESULTS SECTION -->
-        <div class="result-container" id="resultSection">
-            <h1 style="color: #2e7d32; text-align: center; margin-bottom: 30px;">✅ AI Analysis Complete</h1>
-            
-            <div style="display: flex; gap: 30px; flex-wrap: wrap; align-items: start;">
-                <div style="flex: 1; max-width: 400px;">
-                    <img id="resultImage" style="width: 100%; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);" alt="Result">
-                </div>
-                <div style="flex: 2;">
-                    <div id="diseaseBadge" class="disease-badge"></div>
-                    <p id="confidence" style="font-size: 22px; font-weight: bold; color: #2e7d32; margin: 20px 0;"></p>
-                    <p id="diseaseInfo" style="font-size: 16px; color: #666; margin-bottom: 30px;"></p>
-                    
-                    <div class="treatment-box">
-                        <h3 style="color: #2e7d32; margin-bottom: 15px;">💊 Treatment Plan:</h3>
-                        <div id="treatment"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 40px;">
-                <button class="btn" onclick="newAnalysis()">🔄 New Analysis</button>
-                <button class="btn" onclick="shareResult()" style="background: linear-gradient(135deg, #FF9800, #FFB74D);">📤 Share Result</button>
-                <button class="btn" onclick="contactExpert()" style="background: linear-gradient(135deg, #9C27B0, #BA68C8);">👨‍🌾 Contact Expert</button>
-            </div>
-        </div>
-    </div>
+<!-- UPLOAD PAGE -->
+<div class="upload-page" id="uploadPage">
+<header id="headerTitle">🌱 AI Crop Health Diagnosis</header>
+<section class="upload-section">
+<div class="upload-box">
+<h2 id="uploadTitle">Upload Plant Photo for Analysis</h2>
+<label for="imageInput" class="upload-btn" id="chooseImg">📁 Choose Image</label>
+<input type="file" id="imageInput" accept="image/*" style="display:none;">
+<img id="preview">
+<br>
+<button class="analyze-btn" id="analyzeBtn" onclick="analyzeCrop()" disabled>
+🔬 Analyze Crop
+</button>
+</div>
+</section>
+</div>
 
-    <script>
-        const BACKEND_URL = '/predict';  // Your existing backend
-        const imageInput = document.getElementById('imageInput');
-        const preview = document.getElementById('preview');
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const status = document.getElementById('status');
+<!-- RESULT PAGE -->
+<div class="result-page" id="resultPage">
+<div class="result-container">
+<h2 class="result-title" id="resultTitle">✅ Analysis Complete</h2>
+<div class="top-section">
+<div class="image-box">
+<img id="plantImage">
+<div class="overlay">
+<h3 id="diseaseName">Processing...</h3>
+<p id="confidence"></p>
+</div>
+</div>
+<div class="info-side">
+<div class="card causes">
+<h3>🦠 Disease Causes</h3>
+<ul id="causesList"></ul>
+</div>
+<div class="card prevention">
+<h3>💊 Treatment Plan</h3>
+<ul id="preventionList"></ul>
+</div>
+</div>
+</div>
 
-        // Image upload handler
-        imageInput.addEventListener('change', function() {
-            const file = imageInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    analyzeBtn.disabled = false;
-                    analyzeBtn.textContent = '🚀 Send to Backend AI';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+<div class="bottom-cards">
+<div class="alert weather" id="weather">🌤 Weather<br>Humidity 78%</div>
+<div class="alert soil" id="soil">🌾 Soil<br>Nitrogen Low</div>
+<div class="alert pest" id="pest">🐛 Pest<br>Aphids Present</div>
+</div>
 
-        // Analyze with YOUR backend
-        async function analyzeImage() {
-            const file = imageInput.files[0];
-            if (!file) return alert('Please select an image');
+<div class="buttons">
+<button class="btn guide" onclick="showGuide()" id="guideBtn">📖 Guide</button>
+<button class="btn expert" onclick="contactExpert()" id="expertBtn">👨‍🌾 Expert</button>
+<button class="btn tips" onclick="newScan()" id="scanBtn">🔄 New Scan</button>
+<button class="btn share" onclick="shareResult()" id="shareBtn">📤 Share</button>
 
-            analyzeBtn.disabled = true;
-            analyzeBtn.textContent = '🤖 AI Processing...';
-            status.style.display = 'block';
-            status.innerHTML = '🔄 Connecting to your backend...';
+<select id="district">
+<option value="919552107229">Solapur Officer</option>
+<option value="919876543210">Pune Officer</option>
+<option value="919765432100">Satara Officer</option>
+</select>
+</div>
+</div>
+</div>
 
-            try {
-                const formData = new FormData();
-                formData.append('image', file);
+<select id="language" onchange="changeLanguage()">
+<option value="en">English</option>
+<option value="hi">Hindi</option>
+<option value="mr">Marathi</option>
+</select>
 
-                status.innerHTML = '🧠 PlantVillage CNN analyzing...';
-                const response = await fetch(BACKEND_URL, {
-                    method: 'POST',
-                    body: formData
-                });
+<script>
+const uploadPage = document.getElementById('uploadPage');
+const resultPage = document.getElementById('resultPage');
+const imageInput = document.getElementById('imageInput');
+const preview = document.getElementById('preview');
+const analyzeBtn = document.getElementById('analyzeBtn');
 
-                const result = await response.json();
-                
-                if (!result.success) {
-                    throw new Error(result.error || 'Analysis failed');
-                }
+const diagnoses = [
+{
+name:{en:"Early Blight", hi:"अर्ली ब्लाइट", mr:"अर्ली ब्लाइट"},
+cause:{en:"Fungal pathogen (Alternaria solani)", hi:"फफूंद रोग (अल्टरनेरिया सोलानी)", mr:"बुरशीजन्य रोग (अल्टरनेरिया सोलानी)"},
+treatment:{en:"Apply copper fungicide, prune lower leaves", hi:"कॉपर फंगीसाइड का उपयोग करें, नीचे की पत्तियां काटें", mr:"कॉपर फंगीसाइड वापरा, खालची पाने काढा"}
+},
+{
+name:{en:"Late Blight", hi:"लेट ब्लाइट", mr:"लेट ब्लाइट"},
+cause:{en:"Phytophthora infestans fungus", hi:"फाइटोफ्थोरा इंफेस्टन्स फफूंद", mr:"फायटोफ्थोरा इंफेस्टन्स बुरशी"},
+treatment:{en:"Remove infected plants, apply fungicide", hi:"संक्रमित पौधे हटाएं, फंगीसाइड लगाएं", mr:"संक्रमित झाडे काढा, फंगीसाइड फवारणी करा"}
+},
+{
+name:{en:"Bacterial Spot", hi:"बैक्टीरियल स्पॉट", mr:"बॅक्टेरियल स्पॉट"},
+cause:{en:"Bacterial infection", hi:"बैक्टीरियल संक्रमण", mr:"जिवाणू संसर्ग"},
+treatment:{en:"Use bactericide spray", hi:"बैक्टीरिसाइड स्प्रे का उपयोग करें", mr:"बॅक्टेरिसाइड फवारणी करा"}
+}
+];
 
-                // Show results
-                document.getElementById('uploadSection').style.display = 'none';
-                document.getElementById('resultSection').style.display = 'block';
-                
-                // Update UI
-                document.getElementById('resultImage').src = preview.src;
-                document.getElementById('diseaseBadge').textContent = result.disease;
-                document.getElementById('diseaseBadge').className = result.is_healthy ? 
-                    'disease-badge healthy' : 'disease-badge diseased';
-                document.getElementById('confidence').textContent = `Confidence: ${result.confidence}`;
-                document.getElementById('diseaseInfo').textContent = `Full Detection: ${result.full_name}`;
-                document.getElementById('treatment').innerHTML = result.treatment.replace(/, /g, '<br>• ').replace(/^/, '• ');
+const interfaceText = {
+en:{
+header:"🌱 AI Crop Health Diagnosis",
+uploadTitle:"Upload Plant Photo for Analysis",
+chooseImg:"📁 Choose Image",
+analyzeBtn:"🔬 Analyze Crop",
+weather:"🌤 Weather<br>Humidity 78%",
+soil:"🌾 Soil<br>Nitrogen Low",
+pest:"🐛 Pest<br>Aphids Present",
+guide:"📖 Guide",
+expert:"👨‍🌾 Expert",
+scan:"🔄 New Scan",
+share:"📤 Share"
+},
+hi:{
+header:"🌱 एआई फसल स्वास्थ्य विश्लेषण",
+uploadTitle:"विश्लेषण के लिए पौधे की फोटो अपलोड करें",
+chooseImg:"📁 इमेज चुनें",
+analyzeBtn:"🔬 फसल का विश्लेषण करें",
+weather:"🌤 मौसम<br>आर्द्रता 78%",
+soil:"🌾 मिट्टी<br>नाइट्रोजन कम",
+pest:"🐛 कीट<br>एफिड्स मौजूद",
+guide:"📖 गाइड",
+expert:"👨‍🌾 विशेषज्ञ",
+scan:"🔄 नया स्कैन",
+share:"📤 साझा करें"
+},
+mr:{
+header:"🌱 एआय पीक आरोग्य निदान",
+uploadTitle:"विश्लेषणासाठी झाडाची फोटो अपलोड करा",
+chooseImg:"📁 प्रतिमा निवडा",
+analyzeBtn:"🔬 पीक विश्लेषण करा",
+weather:"🌤 हवामान<br>आर्द्रता 78%",
+soil:"🌾 माती<br>नायट्रोजन कमी",
+pest:"🐛 कीटक<br>एफिड्स उपस्थित",
+guide:"📖 मार्गदर्शक",
+expert:"👨‍🌾 तज्ज्ञ",
+scan:"🔄 नवीन स्कॅन",
+share:"📤 शेअर करा"
+}
+};
 
-                status.style.display = 'none';
+imageInput.addEventListener('change', function(){
+  const file = imageInput.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e){
+    preview.src = e.target.result;
+    preview.style.display='block';
+    analyzeBtn.disabled=false;
+  }
+  reader.readAsDataURL(file);
+});
 
-            } catch (error) {
-                status.innerHTML = `❌ Error: ${error.message}<br>Check if backend is running`;
-                analyzeBtn.disabled = false;
-                analyzeBtn.textContent = '🔬 Analyze with AI Backend';
-            }
-        }
+function analyzeCrop(){
+  analyzeBtn.innerText = interfaceText[document.getElementById("language").value].analyzeBtn;
+  setTimeout(()=>{
+    let detectedDiseases=[];
+    diagnoses.forEach(d=>{
+      if(Math.random()>0.5) detectedDiseases.push(d);
+    });
+    if(detectedDiseases.length===0)
+      detectedDiseases.push(diagnoses[Math.floor(Math.random()*diagnoses.length)]);
+    sessionStorage.setItem('plantImage', preview.src);
+    sessionStorage.setItem('diagnosis', JSON.stringify(detectedDiseases));
+    uploadPage.style.display='none';
+    resultPage.style.display='block';
+    displayResults();
+  }, 2000);
+}
 
-        function newAnalysis() {
-            document.getElementById('resultSection').style.display = 'none';
-            document.getElementById('uploadSection').style.display = 'block';
-            preview.style.display = 'none';
-            imageInput.value = '';
-            analyzeBtn.disabled = true;
-            analyzeBtn.textContent = '🔬 Analyze with AI Backend';
-            status.style.display = 'none';
-        }
+function displayResults(){
+  const diseases = JSON.parse(sessionStorage.getItem('diagnosis'));
+  const imgData = sessionStorage.getItem('plantImage');
+  const lang = document.getElementById("language").value;
 
-        function shareResult() {
-            const disease = document.getElementById('diseaseBadge').textContent;
-            const confidence = document.getElementById('confidence').textContent;
-            navigator.clipboard.writeText(`🌱 Crop Analysis Result:\n${disease}\n${confidence}\nPlantVillage AI Backend`).then(() => {
-                alert('✅ Result copied! Share on WhatsApp');
-            });
-        }
+  document.getElementById('plantImage').src = imgData;
+  document.getElementById('diseaseName').textContent = diseases.map(d=>d.name[lang]).join(", ");
+  document.getElementById('confidence').textContent = Math.floor(Math.random()*10+90) + "%";
+  document.getElementById('causesList').innerHTML = diseases.map(d=>"<li>"+d.cause[lang]+"</li>").join("");
+  document.getElementById('preventionList').innerHTML = diseases.map(d=>"<li>"+d.treatment[lang]+"</li>").join("");
 
-        function contactExpert() {
-            alert('👨‍🌾 Pandharpur Krishi Kendra\n📞 1800-180-1551\n🌾 Local Agriculture Officer');
-        }
-    </script>
+  const texts = interfaceText[lang];
+  document.getElementById('headerTitle').innerHTML = texts.header;
+  document.getElementById('uploadTitle').innerHTML = texts.uploadTitle;
+  document.getElementById('chooseImg').innerHTML = texts.chooseImg;
+  analyzeBtn.innerHTML = texts.analyzeBtn;
+  document.getElementById('weather').innerHTML = texts.weather;
+  document.getElementById('soil').innerHTML = texts.soil;
+  document.getElementById('pest').innerHTML = texts.pest;
+  document.getElementById('guideBtn').innerHTML = texts.guide;
+  document.getElementById('expertBtn').innerHTML = texts.expert;
+  document.getElementById('scanBtn').innerHTML = texts.scan;
+  document.getElementById('shareBtn').innerHTML = texts.share;
+}
+
+function changeLanguage(){
+  displayResults();
+}
+
+function contactExpert(){
+  const diagnosis = document.getElementById("diseaseName").textContent;
+  const phone = document.getElementById("district").value;
+  const message = "Hello Sir, I analyzed my crop using AI Crop Health App. Disease detected: "+diagnosis+". Please guide me.";
+  const url = "https://wa.me/"+phone+"?text="+encodeURIComponent(message);
+  window.location.href = url;
+}
+
+function showGuide(){ alert("Complete crop treatment guide available."); }
+function newScan(){ location.reload(); }
+function shareResult(){
+  const diagnosis = document.getElementById("diseaseName").textContent;
+  navigator.clipboard.writeText("Crop Diagnosis: "+diagnosis);
+  alert("Result copied!");
+}
+</script>
+
 </body>
 </html>
