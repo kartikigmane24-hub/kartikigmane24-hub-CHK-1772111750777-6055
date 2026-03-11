@@ -15,7 +15,7 @@ This project uses Artificial Intelligence to analyze plant images and detect cro
 ## Technologies Used
 - Python
 - HTML / CSS
-- Flask (Backend)
+- Fast API(Backend)
 
 ## How to Run the Project
 1. Clone the repository
