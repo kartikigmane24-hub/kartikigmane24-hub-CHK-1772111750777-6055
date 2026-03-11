@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>🌱 AI Crop Health Diagnosis</title>
+<title>🌱 AI Crop Health Diagnosis with Voice</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<!-- Font Awesome for microphone icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
@@ -178,6 +179,174 @@ background:white;
 font-size:14px;
 z-index:1000;
 }
+
+/* -------- AI Chatbot with Voice --------- */
+.chatbox{
+flex:1;
+background:#f1f1f1;
+padding:20px;
+border-radius:15px;
+display:flex;
+flex-direction:column;
+max-height:500px;
+}
+
+.chatbox h3{
+margin-bottom:10px;
+color:#2e7d32;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.chat-messages{
+flex:1;
+overflow-y:auto;
+margin-bottom:10px;
+padding:10px;
+border:1px solid #ccc;
+border-radius:10px;
+background:white;
+min-height:200px;
+max-height:300px;
+}
+
+.chat-messages div{
+margin-bottom:10px;
+padding:8px 12px;
+border-radius:10px;
+}
+
+.chat-messages .user{
+background:#e3f2fd;
+color:#0b3d91;
+font-weight:bold;
+text-align:right;
+margin-left:20%;
+}
+
+.chat-messages .ai{
+background:#c8e6c9;
+color:#2e7d32;
+font-weight:bold;
+text-align:left;
+margin-right:20%;
+}
+
+.chat-messages .error{
+background:#ffcdd2;
+color:#b71c1c;
+text-align:center;
+margin:5px 0;
+font-weight:normal;
+}
+
+.chat-input-container{
+display:flex;
+gap:8px;
+align-items:center;
+margin-top:10px;
+}
+
+#chatInput{
+padding:12px 15px;
+border-radius:25px;
+border:1px solid #ccc;
+flex:1;
+font-size:14px;
+outline:none;
+}
+
+#chatInput:focus{
+border-color:#4caf50;
+}
+
+#chatSend{
+padding:12px 20px;
+border:none;
+border-radius:25px;
+background:#4caf50;
+color:white;
+cursor:pointer;
+font-size:14px;
+font-weight:bold;
+}
+
+#chatSend:hover{
+background:#2e7d32;
+}
+
+/* Voice button - definitely visible */
+.voice-btn{
+background:#2196f3;
+color:white;
+border:none;
+border-radius:50%;
+width:45px;
+height:45px;
+cursor:pointer;
+display:flex !important;
+align-items:center;
+justify-content:center;
+font-size:20px;
+transition:all 0.3s;
+box-shadow:0 2px 5px rgba(0,0,0,0.2);
+}
+
+.voice-btn:hover{
+background:#1976d2;
+transform:scale(1.05);
+}
+
+.voice-btn.listening{
+background:#f44336;
+animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+0%{transform:scale(1);}
+50%{transform:scale(1.1);}
+100%{transform:scale(1);}
+}
+
+.voice-status{
+font-size:12px;
+color:#666;
+margin-top:5px;
+text-align:center;
+display:none;
+padding:5px;
+background:#f0f0f0;
+border-radius:15px;
+}
+
+.voice-status.active{
+display:block;
+color:#2196f3;
+font-weight:bold;
+}
+
+#district{
+padding:12px;
+border-radius:10px;
+border:1px solid #ccc;
+margin-left:10px;
+}
+
+.speaker-btn{
+background:transparent;
+border:none;
+color:#2e7d32;
+cursor:pointer;
+margin-left:5px;
+font-size:16px;
+padding:5px 10px;
+border-radius:15px;
+}
+
+.speaker-btn:hover{
+background:#e8f5e9;
+}
 </style>
 </head>
 
@@ -212,6 +381,7 @@ z-index:1000;
 <p id="confidence"></p>
 </div>
 </div>
+
 <div class="info-side">
 <div class="card causes">
 <h3>🦠 Disease Causes</h3>
@@ -220,6 +390,29 @@ z-index:1000;
 <div class="card prevention">
 <h3>💊 Treatment Plan</h3>
 <ul id="preventionList"></ul>
+</div>
+</div>
+
+<!-- AI Chatbot with Voice -->
+<div class="chatbox">
+<h3>
+<i class="fas fa-robot"></i> AI Chatbot with Voice
+<button class="speaker-btn" onclick="speakLastMessage()" title="Speak last message">
+<i class="fas fa-volume-up"></i>
+</button>
+</h3>
+<div class="chat-messages" id="chatMessages"></div>
+<div class="voice-status" id="voiceStatus">
+<i class="fas fa-microphone"></i> Click mic and speak
+</div>
+<div class="chat-input-container">
+<input type="text" id="chatInput" placeholder="Type or click microphone..." />
+<button class="voice-btn" id="voiceBtn" title="Click to speak">
+<i class="fas fa-microphone"></i>
+</button>
+<button id="chatSend">
+<i class="fas fa-paper-plane"></i> Send
+</button>
 </div>
 </div>
 </div>
@@ -277,45 +470,12 @@ treatment:{en:"Use bactericide spray", hi:"बैक्टीरिसाइड 
 ];
 
 const interfaceText = {
-en:{
-header:"🌱 AI Crop Health Diagnosis",
-uploadTitle:"Upload Plant Photo for Analysis",
-chooseImg:"📁 Choose Image",
-analyzeBtn:"🔬 Analyze Crop",
-weather:"🌤 Weather<br>Humidity 78%",
-soil:"🌾 Soil<br>Nitrogen Low",
-pest:"🐛 Pest<br>Aphids Present",
-guide:"📖 Guide",
-expert:"👨‍🌾 Expert",
-scan:"🔄 New Scan",
-share:"📤 Share"
-},
-hi:{
-header:"🌱 एआई फसल स्वास्थ्य विश्लेषण",
-uploadTitle:"विश्लेषण के लिए पौधे की फोटो अपलोड करें",
-chooseImg:"📁 इमेज चुनें",
-analyzeBtn:"🔬 फसल का विश्लेषण करें",
-weather:"🌤 मौसम<br>आर्द्रता 78%",
-soil:"🌾 मिट्टी<br>नाइट्रोजन कम",
-pest:"🐛 कीट<br>एफिड्स मौजूद",
-guide:"📖 गाइड",
-expert:"👨‍🌾 विशेषज्ञ",
-scan:"🔄 नया स्कैन",
-share:"📤 साझा करें"
-},
-mr:{
-header:"🌱 एआय पीक आरोग्य निदान",
-uploadTitle:"विश्लेषणासाठी झाडाची फोटो अपलोड करा",
-chooseImg:"📁 प्रतिमा निवडा",
-analyzeBtn:"🔬 पीक विश्लेषण करा",
-weather:"🌤 हवामान<br>आर्द्रता 78%",
-soil:"🌾 माती<br>नायट्रोजन कमी",
-pest:"🐛 कीटक<br>एफिड्स उपस्थित",
-guide:"📖 मार्गदर्शक",
-expert:"👨‍🌾 तज्ज्ञ",
-scan:"🔄 नवीन स्कॅन",
-share:"📤 शेअर करा"
-}
+en:{header:"🌱 AI Crop Health Diagnosis", uploadTitle:"Upload Plant Photo for Analysis", chooseImg:"📁 Choose Image", analyzeBtn:"🔬 Analyze Crop",
+weather:"🌤 Weather<br>Humidity 78%", soil:"🌾 Soil<br>Nitrogen Low", pest:"🐛 Pest<br>Aphids Present", guide:"📖 Guide", expert:"👨‍🌾 Expert", scan:"🔄 New Scan", share:"📤 Share"},
+hi:{header:"🌱 एआई फसल स्वास्थ्य विश्लेषण", uploadTitle:"विश्लेषण के लिए पौधे की फोटो अपलोड करें", chooseImg:"📁 इमेज चुनें", analyzeBtn:"🔬 फसल का विश्लेषण करें",
+weather:"🌤 मौसम<br>आर्द्रता 78%", soil:"🌾 मिट्टी<br>नाइट्रोजन कम", pest:"🐛 कीट<br>एफिड्स मौजूद", guide:"📖 गाइड", expert:"👨‍🌾 विशेषज्ञ", scan:"🔄 नया स्कैन", share:"📤 साझा करें"},
+mr:{header:"🌱 एआय पीक आरोग्य निदान", uploadTitle:"विश्लेषणासाठी झाडाची फोटो अपलोड करा", chooseImg:"📁 प्रतिमा निवडा", analyzeBtn:"🔬 पीक विश्लेषण करा",
+weather:"🌤 हवामान<br>आर्द्रता 78%", soil:"🌾 माती<br>नायट्रोजन कमी", pest:"🐛 कीटक<br>एफिड्स उपस्थित", guide:"📖 मार्गदर्शक", expert:"👨‍🌾 तज्ज्ञ", scan:"🔄 नवीन स्कॅन", share:"📤 शेअर करा"}
 };
 
 imageInput.addEventListener('change', function(){
@@ -372,7 +532,16 @@ function displayResults(){
 }
 
 function changeLanguage(){
-  displayResults();
+  if(resultPage.style.display === 'block') {
+    displayResults();
+  } else {
+    const lang = document.getElementById("language").value;
+    const texts = interfaceText[lang];
+    document.getElementById('headerTitle').innerHTML = texts.header;
+    document.getElementById('uploadTitle').innerHTML = texts.uploadTitle;
+    document.getElementById('chooseImg').innerHTML = texts.chooseImg;
+    analyzeBtn.innerHTML = texts.analyzeBtn;
+  }
 }
 
 function contactExpert(){
@@ -383,12 +552,237 @@ function contactExpert(){
   window.location.href = url;
 }
 
-function showGuide(){ alert("Complete crop treatment guide available."); }
+function showGuide(){ alert("Complete crop treatment guide available.\n\n1. Early Blight: Use copper fungicide\n2. Late Blight: Remove infected plants\n3. Bacterial Spot: Apply bactericide spray"); }
 function newScan(){ location.reload(); }
 function shareResult(){
   const diagnosis = document.getElementById("diseaseName").textContent;
   navigator.clipboard.writeText("Crop Diagnosis: "+diagnosis);
   alert("Result copied!");
+}
+
+// VOICE CHATBOT FUNCTIONALITY
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+const chatMessages = document.getElementById('chatMessages');
+const voiceBtn = document.getElementById('voiceBtn');
+const voiceStatus = document.getElementById('voiceStatus');
+
+// Check if elements exist
+console.log('Voice button:', voiceBtn);
+console.log('Voice status:', voiceStatus);
+
+// Speech recognition setup
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isListening = false;
+
+if (SpeechRecognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = function() {
+        isListening = true;
+        voiceBtn.classList.add('listening');
+        voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+        voiceStatus.classList.add('active');
+        voiceStatus.innerHTML = '<i class="fas fa-microphone"></i> Listening... Speak now';
+        console.log('Voice recognition started');
+    };
+
+    recognition.onend = function() {
+        isListening = false;
+        voiceBtn.classList.remove('listening');
+        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        voiceStatus.classList.remove('active');
+        voiceStatus.innerHTML = '<i class="fas fa-microphone"></i> Click mic and speak';
+        console.log('Voice recognition ended');
+    };
+
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        console.log('Recognized:', transcript);
+        chatInput.value = transcript;
+        // Automatically send the voice message
+        sendMessage();
+    };
+
+    recognition.onerror = function(event) {
+        console.error('Speech error:', event.error);
+        voiceBtn.classList.remove('listening');
+        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        voiceStatus.classList.remove('active');
+        voiceStatus.innerHTML = '<i class="fas fa-microphone"></i> Error: ' + event.error;
+        
+        // Show error in chat
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error';
+        errorDiv.textContent = '⚠️ Voice error: ' + event.error;
+        chatMessages.appendChild(errorDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    };
+} else {
+    console.log('Speech recognition not supported');
+    if (voiceBtn) {
+        voiceBtn.style.opacity = '0.5';
+        voiceBtn.title = 'Voice not supported in this browser';
+    }
+}
+
+// Voice button click handler
+if (voiceBtn) {
+    voiceBtn.addEventListener('click', function() {
+        console.log('Voice button clicked');
+        if (!recognition) {
+            alert('Voice recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+            return;
+        }
+        
+        if (isListening) {
+            recognition.stop();
+        } else {
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('Recognition start error:', error);
+                alert('Could not start voice recognition. Please try again.');
+            }
+        }
+    });
+}
+
+// Text-to-speech function
+function speakText(text) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        
+        const cleanText = text.replace(/^AI:\s*/, '');
+        
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+// Speak last AI message
+function speakLastMessage() {
+    const messages = chatMessages.children;
+    for (let i = messages.length - 1; i >= 0; i--) {
+        if (messages[i].classList.contains('ai')) {
+            speakText(messages[i].textContent);
+            break;
+        }
+    }
+}
+
+// Welcome message
+let welcomeShown = false;
+
+function showWelcomeMessage() {
+  if (!welcomeShown && resultPage.style.display === 'block') {
+    const diseases = JSON.parse(sessionStorage.getItem('diagnosis'));
+    const lang = document.getElementById("language").value;
+    const diseaseName = diseases ? diseases.map(d=>d.name[lang]).join(", ") : "your crop";
+    
+    const welcomeDiv = document.createElement('div');
+    welcomeDiv.className = 'ai';
+    welcomeDiv.textContent = `AI: Hello! I see you have ${diseaseName}. Click the microphone button 🎤 and speak your questions!`;
+    chatMessages.appendChild(welcomeDiv);
+    welcomeShown = true;
+  }
+}
+
+// Check for result page display
+setInterval(() => {
+  if (resultPage.style.display === 'block' && !welcomeShown) {
+    showWelcomeMessage();
+  }
+}, 500);
+
+chatSend.addEventListener('click', sendMessage);
+chatInput.addEventListener('keypress', function(e){
+    if(e.key==='Enter') sendMessage();
+});
+
+// Knowledge base
+const knowledgeBase = {
+    diseases: {
+        'early blight': {
+            symptoms: ['Dark brown spots with rings', 'Yellowing around spots', 'Lower leaves affected'],
+            causes: ['Fungus Alternaria solani', 'Warm, humid conditions', 'Poor air circulation'],
+            treatment: ['Apply copper fungicide', 'Remove infected leaves', 'Mulch to prevent soil splash'],
+            organic: ['Neem oil spray', 'Baking soda solution', 'Compost tea']
+        },
+        'late blight': {
+            symptoms: ['Large water-soaked spots', 'White fuzzy growth', 'Rapid plant collapse'],
+            causes: ['Phytophthora infestans', 'Cool, wet weather', 'Infected debris'],
+            treatment: ['Remove infected plants', 'Apply chlorothalonil', 'Avoid working in wet fields'],
+            organic: ['Copper sulfate', 'Bacillus subtilis', 'Garlic spray']
+        }
+    }
+};
+
+function generateResponse(question) {
+    const q = question.toLowerCase();
+    
+    if (q.includes('early blight')) {
+        return "For Early Blight: Remove infected leaves and apply copper fungicide every 7-10 days. Improve air circulation.";
+    }
+    else if (q.includes('late blight')) {
+        return "Late Blight is serious! Remove infected plants immediately. Apply fungicide containing chlorothalonil.";
+    }
+    else if (q.includes('treatment') || q.includes('cure')) {
+        return "Treatment depends on the disease. For fungal diseases, use copper fungicide. What disease are you seeing?";
+    }
+    else if (q.includes('hello') || q.includes('hi')) {
+        return "Hello! I'm your crop assistant. Ask me about diseases or click the microphone to speak!";
+    }
+    else {
+        return "I can help with crop diseases. Ask about Early Blight, Late Blight, or treatment options.";
+    }
+}
+
+function sendMessage(){
+    const msg = chatInput.value.trim();
+    if(!msg) return;
+    
+    // User message
+    const userDiv = document.createElement('div');
+    userDiv.className = 'user';
+    userDiv.textContent = "You: " + msg;
+    chatMessages.appendChild(userDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    chatInput.value = '';
+
+    // Typing indicator
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'ai';
+    typingDiv.textContent = "AI: ...";
+    typingDiv.id = 'typingIndicator';
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Response
+    setTimeout(() => {
+        const typing = document.getElementById('typingIndicator');
+        if (typing) typing.remove();
+        
+        const response = generateResponse(msg);
+        
+        const aiDiv = document.createElement('div');
+        aiDiv.className = 'ai';
+        aiDiv.textContent = "AI: " + response;
+        chatMessages.appendChild(aiDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Speak the response
+        speakText(response);
+    }, 1000);
 }
 </script>
 
